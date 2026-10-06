@@ -1,0 +1,50 @@
+{
+  "info": {
+    "name": "Easy Commerce Courier API",
+    "description": "Unified courier API examples using the built-in mock adapter.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api/v1" },
+    { "key": "orderId", "value": "postman-order-1001" },
+    { "key": "batchId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Create order",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/orders",
+        "body": { "mode": "raw", "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"courierPartner\": \"mock\",\n  \"shipper\": { \"name\": \"Warehouse\", \"addressLine1\": \"12 MG Road\", \"city\": \"Gurugram\", \"state\": \"Haryana\", \"pincode\": \"122017\", \"country\": \"India\", \"phone\": \"9876543210\", \"email\": \"warehouse@example.com\" },\n  \"recipient\": { \"name\": \"Customer\", \"addressLine1\": \"26 Market Road\", \"city\": \"Gurugram\", \"state\": \"Haryana\", \"pincode\": \"122001\", \"country\": \"India\", \"phone\": \"9876543211\", \"email\": \"customer@example.com\" },\n  \"parcel\": { \"weightKg\": 1.1, \"lengthCm\": 12, \"widthCm\": 10, \"heightCm\": 10, \"pieces\": 1 },\n  \"items\": [{ \"sku\": \"BOOK-1\", \"description\": \"Books\", \"quantity\": 1, \"unitPrice\": 500 }],\n  \"paymentMode\": \"PREPAID\",\n  \"declaredValue\": 500,\n  \"invoiceNumber\": \"INV-1001\",\n  \"invoiceDate\": \"2026-10-01\"\n}" }
+      }
+    },
+    {
+      "name": "Track order",
+      "request": { "method": "GET", "url": "{{baseUrl}}/orders/{{orderId}}/track" }
+    },
+    {
+      "name": "Cancel order",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/orders/{{orderId}}/cancel",
+        "body": { "mode": "raw", "raw": "{ \"courierPartner\": \"mock\" }" }
+      }
+    },
+    {
+      "name": "Create bulk batch",
+      "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 202) pm.collectionVariables.set('batchId', pm.response.json().batchId);"] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/orders/bulk",
+        "body": { "mode": "raw", "raw": "{\n  \"orders\": [\n    {\n      \"orderId\": \"bulk-ok-1\", \"courierPartner\": \"mock\",\n      \"shipper\": { \"name\": \"Warehouse\", \"addressLine1\": \"12 MG Road\", \"city\": \"Gurugram\", \"state\": \"Haryana\", \"pincode\": \"122017\", \"country\": \"India\", \"phone\": \"9876543210\" },\n      \"recipient\": { \"name\": \"Customer\", \"addressLine1\": \"26 Market Road\", \"city\": \"Gurugram\", \"state\": \"Haryana\", \"pincode\": \"122001\", \"country\": \"India\", \"phone\": \"9876543211\" },\n      \"parcel\": { \"weightKg\": 1, \"lengthCm\": 10, \"widthCm\": 10, \"heightCm\": 10, \"pieces\": 1 },\n      \"items\": [{ \"sku\": \"SKU-1\", \"description\": \"Item\", \"quantity\": 1, \"unitPrice\": 100 }],\n      \"paymentMode\": \"PREPAID\", \"declaredValue\": 100, \"invoiceNumber\": \"B-1\", \"invoiceDate\": \"2026-10-01\"\n    },\n    {\n      \"orderId\": \"bulk-fail-1\", \"courierPartner\": \"mock\", \"metadata\": { \"forceFailure\": true },\n      \"shipper\": { \"name\": \"Warehouse\", \"addressLine1\": \"12 MG Road\", \"city\": \"Gurugram\", \"state\": \"Haryana\", \"pincode\": \"122017\", \"country\": \"India\", \"phone\": \"9876543210\" },\n      \"recipient\": { \"name\": \"Customer\", \"addressLine1\": \"26 Market Road\", \"city\": \"Gurugram\", \"state\": \"Haryana\", \"pincode\": \"122001\", \"country\": \"India\", \"phone\": \"9876543211\" },\n      \"parcel\": { \"weightKg\": 1, \"lengthCm\": 10, \"widthCm\": 10, \"heightCm\": 10, \"pieces\": 1 },\n      \"items\": [{ \"sku\": \"SKU-2\", \"description\": \"Item\", \"quantity\": 1, \"unitPrice\": 100 }],\n      \"paymentMode\": \"PREPAID\", \"declaredValue\": 100, \"invoiceNumber\": \"B-2\", \"invoiceDate\": \"2026-10-01\"\n    }\n  ]\n}" }
+      }
+    },
+    {
+      "name": "Get bulk results",
+      "request": { "method": "GET", "url": "{{baseUrl}}/orders/bulk/{{batchId}}" }
+    }
+  ]
+}
